@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class CatalogoTipoMovimientosSeeder extends Seeder
 {
@@ -12,9 +13,9 @@ class CatalogoTipoMovimientosSeeder extends Seeder
      */
     public function run(): void
     {
-        $catalogoTipoMovimientos = [
+        DB::table('catalogo_tipo_movimientos')->insert([
             ['id' => 1, 'nombre' => 'Ingreso'],
             ['id' => 2, 'nombre' => 'Egreso'],
-        ];
+        ]);
     }
 }

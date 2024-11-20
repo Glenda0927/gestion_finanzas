@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UsuarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('welcome');
+Route::prefix('user')->group(function () {
+    Route::get('crear', [UsuarioController::class, 'create'])->name('user.create'); // Formulario para crear usuario
+    Route::post('crear', [UsuarioController::class, 'store'])->name('user.store');  // Enviar datos del formulario (nuevo método en el controlador)
+    Route::get('mostrar', [UsuarioController::class, 'index'])->name('user.index');
+    Route::put('actualizar/{id}', [UsuarioController::class, 'update'])->name('user.update'); // Actualizar usuario
+    Route::delete('eliminar/{id}', [UsuarioController::class, 'destroy'])->name('user.destroy'); // Eliminar usuario
 });
+
