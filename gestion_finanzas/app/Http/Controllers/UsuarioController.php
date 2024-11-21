@@ -5,20 +5,20 @@ namespace App\Http\Controllers;
 use App\Models\usuario;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Auth;
 
 class UsuarioController extends Controller
 {
     public function index()
     {
-        $usuarios = usuario::select('id', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'email', 'telefono', 'direccion', 'fecha_nacimiento', 'username')->get();
+        $usuarios = Usuario::select('id', 'primer_nombre', 'segundo_nombre', 'primer_apellido', 'segundo_apellido', 'email', 'telefono', 'direccion', 'fecha_nacimiento', 'username')->get();
         return view('usuarios.index', compact('usuarios'));
     }
+
 
     public function create()
     {
         try {
-
-
             $data = request()->validate([
                 'primer_nombre' => 'required',
                 'segundo_nombre' => 'required',
@@ -79,36 +79,36 @@ class UsuarioController extends Controller
     }
 
     public function update(Request $request, $id)
-{
-    $data = $request->validate([
-        'primer_nombre' => 'required|string',
-        'segundo_nombre' => 'required|string',
-        'primer_apellido' => 'required|string',
-        'segundo_apellido' => 'required|string',
-        'email' => 'required|email|unique:usuarios,email,' . $id,
-        'telefono' => 'required|numeric',
-        'direccion' => 'required|string',
-        'fecha_nacimiento' => 'nullable|date|date_format:Y-m-d',
-    ]);
+    {
+        $data = $request->validate([
+            'primer_nombre' => 'required|string',
+            'segundo_nombre' => 'required|string',
+            'primer_apellido' => 'required|string',
+            'segundo_apellido' => 'required|string',
+            'email' => 'required|email|unique:usuarios,email,' . $id,
+            'telefono' => 'required|numeric',
+            'direccion' => 'required|string',
+            'fecha_nacimiento' => 'nullable|date|date_format:Y-m-d',
+        ]);
 
-    $usuario = Usuario::find($id);
+        $usuario = Usuario::find($id);
 
-    if (!$usuario) {
-        return response()->json(['error' => 'Usuario no encontrado'], 404);
+        if (!$usuario) {
+            return response()->json(['error' => 'Usuario no encontrado'], 404);
+        }
+
+        $usuario->primer_nombre = $data['primer_nombre'];
+        $usuario->segundo_nombre = $data['segundo_nombre'];
+        $usuario->primer_apellido = $data['primer_apellido'];
+        $usuario->segundo_apellido = $data['segundo_apellido'];
+        $usuario->email = $data['email'];
+        $usuario->telefono = $data['telefono'];
+        $usuario->direccion = $data['direccion'];
+        $usuario->fecha_nacimiento = $data['fecha_nacimiento'];
+        $usuario->save();
+
+        return response()->json($usuario);
     }
-
-    $usuario->primer_nombre = $data['primer_nombre'];
-    $usuario->segundo_nombre = $data['segundo_nombre'];
-    $usuario->primer_apellido = $data['primer_apellido'];
-    $usuario->segundo_apellido = $data['segundo_apellido'];
-    $usuario->email = $data['email'];
-    $usuario->telefono = $data['telefono'];
-    $usuario->direccion = $data['direccion'];
-    $usuario->fecha_nacimiento = $data['fecha_nacimiento'];
-    $usuario->save();
-
-    return response()->json($usuario);
-}
 
     public function destroy($id)
     {
@@ -121,5 +121,28 @@ class UsuarioController extends Controller
         $usuario->delete();
 
         return response()->json(['message' => 'Usuario eliminado correctamente']);
+    }
+
+    public function login(Request $request)
+    {
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            return redirect()->intended('/dashboard');
+        }
+
+        return back()->withErrors([
+            'email' => 'Las credenciales proporcionadas son incorrectas.',
+        ]);
+    }
+
+    public function logout()
+    {
+        Auth::logout();
+
+        return redirect('/');
     }
 }

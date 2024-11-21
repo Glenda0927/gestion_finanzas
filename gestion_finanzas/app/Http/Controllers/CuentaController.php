@@ -7,59 +7,78 @@ use Illuminate\Http\Request;
 
 class CuentaController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
-    public function index()
+    public function cuenta(Request $request)
     {
-        //
+        $data = $request->validate([
+            'nombre' => 'required|string|max:100',
+            'numero' => 'required|string|max:20|unique:cuentas,numero',
+            'id_tipo_cuenta' => 'required|exists:catalogo_tipo_cuentas,id',
+            'balance_inicial' => 'required|numeric',
+        ]);
+
+        $cuenta = new Cuenta();
+        $cuenta->nombre = $data['nombre'];
+        $cuenta->numero = $data['numero'];
+        $cuenta->usuario_id = 3; // Set the user ID to 3
+        $cuenta->id_tipo_cuenta = $data['id_tipo_cuenta'];
+        $cuenta->balance_inicial = $data['balance_inicial'];
+        $cuenta->save();
+
+        return response()->json(['message' => 'Cuenta creada correctamente'], 201);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    public function index ()
     {
-        //
+        $cuentas = Cuenta::all();
+
+        return response()->json($cuentas);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
+    public function show($id)
     {
-        //
+        $cuenta = Cuenta::find($id);
+
+        if($cuenta){
+            return response()->json($cuenta);
+        }else{
+            return response()->json(['message' => 'Cuenta no encontrada'], 404);
+        }
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(cuenta $cuenta)
+    public function update(Request $request, $id)
     {
-        //
+        $data = $request->validate([
+            'nombre' => 'required|string|max:100',
+            'numero' => 'required|string|max:20|unique:cuentas,numero,' . $id,
+            'id_tipo_cuenta' => 'required|exists:catalogo_tipo_cuentas,id',
+            'balance_inicial' => 'required|numeric',
+        ]);
+
+        $cuenta = Cuenta::find($id);
+
+        if (!$cuenta) {
+            return response()->json(['error' => 'Cuenta no encontrada'], 404);
+        }
+
+        $cuenta->nombre = $data['nombre'];
+        $cuenta->numero = $data['numero'];
+        $cuenta->id_tipo_cuenta = $data['id_tipo_cuenta'];
+        $cuenta->balance_inicial = $data['balance_inicial'];
+        $cuenta->save();
+
+        return response()->json($cuenta);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(cuenta $cuenta)
+    public function destroy($id)
     {
-        //
-    }
+        $cuenta = Cuenta::find($id);
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, cuenta $cuenta)
-    {
-        //
-    }
+        if (!$cuenta) {
+            return response()->json(['error' => 'Cuenta no encontrada'], 404);
+        }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(cuenta $cuenta)
-    {
-        //
+        $cuenta->delete();
+
+        return response()->json(['message' => 'Cuenta eliminada correctamente']);
     }
 }

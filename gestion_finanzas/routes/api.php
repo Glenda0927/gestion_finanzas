@@ -3,6 +3,8 @@
 use App\Http\Controllers\UsuarioController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CuentaController;
+use App\Http\Controllers\CatalogoTipoCuentaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,4 +22,16 @@ Route::prefix('user')->group(function () {
     Route::get('mostrar', [UsuarioController::class, 'index']);
     Route::put('actualizar/{id}', [UsuarioController::class, 'update']);
     Route::delete('eliminar/{id}', [UsuarioController::class, 'destroy']);
+});
+
+Route::prefix('cuenta')->group(function () {
+    Route::post('crear', [CuentaController::class, 'cuenta']);
+    Route::get('mostrar', [CuentaController::class, 'index']);
+    Route::get('mostrar/{id}', [CuentaController::class, 'show']);
+    Route::put('actualizar/{id}', [CuentaController::class, 'update']);
+});
+
+Route::prefix('tipo_cuenta')->group(function () {
+    Route::post('crear', [CatalogoTipoCuentaController::class, 'create']);
+    Route::get('mostrar', [CatalogoTipoCuentaController::class, 'index']);
 });
